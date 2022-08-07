@@ -1,0 +1,4 @@
+# for this file when we push our code to github, this folders wont move there
+
+node_modules
+.env
