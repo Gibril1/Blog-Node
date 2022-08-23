@@ -1,10 +1,18 @@
 const express = require('express')
 const router = express.Router()
-const { getBlogs, getUserBlogs, setBlogs, updateBlogs, deleteBlogs } = require('../controller/blogController')
+const { 
+    getBlogs, 
+    getUserBlogs, 
+    setBlogs, 
+    updateBlogs, 
+    deleteBlogs 
+} = require('../controller/blogController')
 
-router.route('/').get(getBlogs).post(setBlogs)
-router.route('/:id').put(updateBlogs).delete(deleteBlogs)
-router.get('/myblogs', getUserBlogs)
+const { protect } = require('../middleware/authMiddleware')
+
+router.route('/').get(getBlogs).post(protect,setBlogs)
+router.route('/:id').put(protect,updateBlogs).delete(protect,deleteBlogs)
+router.get('/myblogs', protect, getUserBlogs)
 
 
 
