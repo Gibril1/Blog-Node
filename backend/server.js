@@ -6,17 +6,6 @@ const port = process.env.PORT || 5000
 
 const app = express()
 
-app.get('/api/goals', (req, res) => {
-    res.send('Get goals')
-})
-app.post('/api/goals', (req, res) => {
-    res.send('Set goals')
-})
-app.put('/api/goals', (req, res) => {
-    res.send('Update goals')
-})
-app.delete('/api/goals', (req, res) => {
-    res.send('Delete goals')
-})
+app.use('/api/goals', require('./routes/goalRoutes'))
 
 app.listen(port, () => console.log(`Server running at port ${port}`))
