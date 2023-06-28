@@ -2,14 +2,23 @@ const asyncHandler = require('express-async-handler')
 const User = require('../models/userModel')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const validator = require('validator')
 
-const registerUser = asyncHandler(async (req,res) => {
+const registerUser = asyncHandler(async (req, res) => {
+    
     const { name, email, password } = req.body
 
+    
     if(!name || !email || !password){
         res.status(400)
         throw new Error('Please add all the fields')
     }
+
+    if (!(validator.isEmail(email) && validator.isAlpha(name))) {
+        res.status(400);
+        throw new Error('Invalid User Data');
+    }    
+
 
     const userExists = await User.findOne({ email })
     if(userExists){
@@ -28,10 +37,8 @@ const registerUser = asyncHandler(async (req,res) => {
     })
 
     if(user){
-        res.status(200).json({
-            id:user.id,
-            name:user.name,
-            email: user.email,
+        res.status(201).json({
+            message: `An account has been created for ${name}`,
             token: generateToken(user._id)
         })
     } else{
@@ -51,10 +58,9 @@ const loginUser = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email })
 
     if (user && await bcrypt.compare(password, user.password)){
+        res.status(200)
         res.json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
+            message: 'Successful Login',
             token: generateToken(user._id)
         })
     }else {
@@ -64,7 +70,7 @@ const loginUser = asyncHandler(async (req, res) => {
 })
 
 const getUser = asyncHandler(async(req, res) => {
-    const {_id, name, email, password } = await Users.findById(req.user.id)
+    const {_id, name, email } = await User.findById(req.user.id)
 
     res.status(200).json({
         id: _id,

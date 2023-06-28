@@ -3,15 +3,15 @@ const router = express.Router()
 const { 
     getBlogs, 
     getUserBlogs, 
-    setBlogs, 
+    createBlogs, 
     updateBlogs, 
     deleteBlogs 
-} = require('../controller/blogController')
+} = require('../controllers/blogController')
 
 const { protect } = require('../middleware/authMiddleware')
 
-router.route('/').get(getBlogs).post(protect,setBlogs)
-router.route('/:id').put(protect,updateBlogs).delete(protect,deleteBlogs)
+router.route('/').get(getBlogs).post(protect,createBlogs)
+router.route('/:id').put(protect, updateBlogs).delete(protect,deleteBlogs)
 router.get('/myblogs', protect, getUserBlogs)
 
 

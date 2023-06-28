@@ -1,76 +1,134 @@
+const mongoose = require('mongoose')
 const asyncHandler = require('express-async-handler')
 const Blogs = require('../models/blog')
+const User = require('../models/userModel')
+const blog = require('../models/blog')
 
 const getBlogs = asyncHandler(async (req, res) => {
     const blogs = await Blogs.find()
     res.status(200).json(blogs)
 })
 
-const setBlogs = asyncHandler(async (req, res) => {
-    if(!req.body){
+const createBlogs = asyncHandler(async (req, res) => {
+    
+    const { title, content } = req.body
+
+    if (!title || !content) {
         res.status(400)
-        throw new Error ('Please enter the contents')
+        throw new Error('Please enter all fields')
     }
 
     const blog = await Blogs.create({
-        author: req.body.author,
-        title: req.body.title,
-        content: req.body.content,
-        user: req.author.id
+        author: req.user.id,
+        title,
+        content,
     })
-    
-
-
-    res.status(200).json(blog)
+    res.status(201).json(blog)
 })
 
 const updateBlogs = asyncHandler(async (req, res) => {
-    const blog = await Blogs.findById(req.params.id)
-    if(!blog){
+    const blogId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(blogId)) {
+    res.status(400);
+    throw new Error('Invalid blog ID');
+    }
+    
+    const blog = await Blogs.findById(blogId)
+
+    if (!blog) {
+        res.status(404)
+        throw new Error('Blog does not exist')
+    }
+
+    const { title, content } = req.body
+
+
+    if (!title || !content) {
         res.status(400)
-        throw new Error('Blog cannot be found')
-    }
+        throw new Error('Please enter all fields')
+  }
+  
 
-    const user = await User.find(req.user.id)
-    if(!user){
-        res.status(401)
-        throw new Error('User cannot be found')
-    }
-
-    if(blog.user.toString() !== user.id){
+    if(blog.author.toString() !== req.user.id){
         res.status(401)
         throw new Error('User is not authorized')
     }
 
-    const updatedBlog = await Blogs.findByIdAndUpdate(req.params.id, req.body, { new:true})
-    res.status(200).json(updatedBlog)
+    blog.title = title
+    blog.content = content
+    await blog.save()
+
+    res.status(200).json(blog)
 })
 
 const deleteBlogs = asyncHandler(async (req, res) => {
-    const blog = await Blogs.findById(req.params.id)
+  const blogId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(blogId)) {
+    res.status(400);
+    throw new Error('Invalid blog ID');
+  }
+  
+  const blog = await Blogs.findById(blogId)
+  
     if(!blog){
         res.status(400)
         throw new Error('Blog cannot be found')
     }
 
-    const user = await User.find(req.user.id)
-    if(!user){
-        res.status(401)
-        throw new Error('User cannot be found')
-    }
+    
 
-    if(blog.user.toString() !== user.id){
+    if(blog.author.toString() !== req.user.id){
         res.status(401)
         throw new Error('User is not authorized')
     }
 
     await blog.remove()
-    res.status(200).json({id: req.parans.id})
+    res.status(200).json({id: blogId})
 })
 
+const getUserBlogs = asyncHandler(async (req, res) => {
+    const blogs = await Blogs.find({ author: req.user.id })
+    res.status(200).json(blogs)   
+})
+
+const searchBlogs = asyncHandler(async (req, res) => {
+    const { query, startDate, endDate } = req.query;
+  
+    // Create the search query object
+    const searchQuery = {};
+  
+    if (query) {
+      // Search by title or content (case-insensitive)
+      searchQuery.$or = [
+        { title: { $regex: query, $options: 'i' } },
+        { content: { $regex: query, $options: 'i' } },
+      ];
+    }
+  
+    if (startDate && endDate) {
+      // Search by date range
+      searchQuery.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    }
+  
+    try {
+      const blogs = await Blogs.find(searchQuery).populate('author');
+  
+      res.status(200).json(blogs);
+    } catch (error) {
+      next(error);
+    }
+  });
+  
 module.exports = {
     getBlogs,
-    setBlogs,
+    createBlogs,
     updateBlogs,
-    deleteBlogs
+    deleteBlogs,
+    getUserBlogs,
+    searchBlogs
 }

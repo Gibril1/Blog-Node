@@ -19,7 +19,7 @@ const protect = asyncHandler(async(req, res, next) => {
         } catch(err) {
             console.log(err)
             res.status(401)
-            throw new Error('Mot authorized')
+            throw new Error('Not authorized')
         }
     }
 
