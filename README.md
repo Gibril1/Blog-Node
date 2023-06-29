@@ -8,7 +8,7 @@ To access the API Documentation, please click [here](https://documenter.getpostm
 
 ## Getting Started
 
-1. Clone the Respository ``` link ```
+1. Clone the Respository ``` git clone https://github.com/Gibril1/Blog-Node.git ```
 
 2. Run npm install
 
