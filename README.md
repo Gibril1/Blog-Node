@@ -6,6 +6,8 @@ Welcome to the Esoko project documentation! This guide will provide you with the
 
 To access the API Documentation, please click [here](https://documenter.getpostman.com/view/22678038/2s93z9choF)
 
+The API is hosted [here](https://slightly-techie-igye.onrender.com)
+
 ## Getting Started
 
 1. Clone the Respository ``` git clone https://github.com/Gibril1/Blog-Node.git ```
