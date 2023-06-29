@@ -228,5 +228,38 @@ describe('Test endpoints for deleting a blog', () => {
     })
 })
 
+describe('Testing the endpoint for getting users blogs', () => {
+    describe('GET /api/v1/blogs/myblogs', () => {
+        test('failure - Not Authorized', async () => {
+            try {
+                const { statusCode } = await request(app)
+                    .get('/api/v1/blogs/myblogs')
+                expect(statusCode).toBe(401)
+            } catch (error) {
+                expect(error).toEqual({
+                    error: true,
+                    message: 'Not Authorized. No token'
+                })
+            }
+        })
+
+        test('success - Get My Blogs', async() => {
+            const { statusCode, body } = await request(app)
+                .get('/api/v1/blogs/myblogs')
+                .set('Authorization', `Bearer ${testUserToken}`)
+            expect(statusCode).toBe(200)
+            expect(body).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        author: expect.any(String),
+                        title: expect.any(String),
+                        content: expect.any(String),
+                        _id: expect.any(String),
+                    })
+                ])
+            )
+        })
+    })
+})
 
 
