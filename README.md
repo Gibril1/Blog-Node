@@ -1,6 +1,6 @@
 # Slightly Techie
 
-Welcome to the Esoko project documentation! This guide will provide you with the necessary information to get started with the project.
+Welcome to project documentation! This guide will provide you with the necessary information to get started with the project.
 
 ## Documentation
 
